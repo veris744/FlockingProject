@@ -5,6 +5,7 @@
 #include "RebelWolvesProjectile.h"
 #include "Bird.h"
 #include "UI/RWUserWidget.h"
+#include <Misc/DefaultValueHelper.h>
 
 UGameManager* UGameManager::Instance = nullptr;
 
@@ -25,13 +26,17 @@ bool UGameManager::SetConfiguration()
 		return false;
 	}
 
-	if (!tempSize[0].IsNumeric() || !tempSize[1].IsNumeric())
+
+	float x;
+	float y;
+	if (!FDefaultValueHelper::ParseFloat(tempSize[0], x)
+		|| !FDefaultValueHelper::ParseFloat(tempSize[1], y))
 	{
 		return false;
 	}
 
-	Size.X = FCString::Atoi(*tempSize[0]);
-	Size.Y = FCString::Atoi(*tempSize[1]);
+	Size.X = x;
+	Size.Y = y;
 
 
 	TArray<FString> tempHeights;
@@ -41,12 +46,13 @@ bool UGameManager::SetConfiguration()
 		tempHeights,
 		GEditorPerProjectIni);
 
+	float h;
+
 	for (auto val : tempHeights)
 	{
-		if (!val.IsNumeric())	return false;
+		if (!FDefaultValueHelper::ParseFloat(val, h))	return false;
 
-		int tempval = FCString::Atoi(*val);
-		BuildingHeights.Add(tempval);
+		BuildingHeights.Add(h);
 	}
 
 	int tempMaxHeight;
