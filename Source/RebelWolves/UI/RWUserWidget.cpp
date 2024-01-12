@@ -5,23 +5,38 @@
 #include "Components/TextBlock.h"
 #include "RebelWolves/RebelWolvesGameMode.h"
 #include "RebelWolves/GameManager.h"
+#include <RebelWolves/RebelWolvesCharacter.h>
+#include <Kismet/GameplayStatics.h>
 
 void URWUserWidget::NativeConstruct()
 {
 	if (UGameManager::GetGameManager())
 	{
-		BirdsCount->SetText(FText::FromString(FString::FromInt(UGameManager::GetGameManager()->GetNumBird())));
-		PredatorsCount->SetText(FText::FromString(FString::FromInt(UGameManager::GetGameManager()->GetNumPredator())));
+		FString s = "BIRDS: ";
+		BirdsCount->SetText(FText::FromString(s + FString::FromInt(UGameManager::GetGameManager()->GetNumBird())));
+
+		s = "PREDATORS: ";
+		PredatorsCount->SetText(FText::FromString(s + FString::FromInt(UGameManager::GetGameManager()->GetNumPredator())));
+
 	}
 	
 }
 
 void URWUserWidget::UpdateBirdCount(int num)
 {
-	BirdsCount->SetText(FText::FromString(FString::FromInt(num)));
+	FString s = "BIRDS: ";
+	BirdsCount->SetText(FText::FromString(s + FString::FromInt(num)));
 }
 
 void URWUserWidget::UpdatePredatorCount(int num)
 {
-	PredatorsCount->SetText(FText::FromString(FString::FromInt(num)));
+	FString s = "PREDATORS: ";
+	PredatorsCount->SetText(FText::FromString(s + FString::FromInt(num)));
+}
+
+void URWUserWidget::UpdateAmmoCount(int num)
+{
+	FString s = "AMMO: ";
+	AmmoCount->SetText(FText::FromString(s + FString::FromInt(num)));
+	
 }

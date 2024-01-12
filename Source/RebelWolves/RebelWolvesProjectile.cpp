@@ -84,8 +84,8 @@ void ARebelWolvesProjectile::Tick(float DeltaTime)
 	Energy -= (EnergyUsed /100) * DeltaTime;
 
 
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("%f"), Energy));
+	//if (GEngine)
+		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("%f"), Energy));
 
 	ProjectileMovement->Velocity = Velocity;
 }
@@ -132,8 +132,6 @@ float ARebelWolvesProjectile::SetTarget()
 {
 	float minDist = -1;
 
-	if (Target != nullptr)	
-		minDist = FVector::DistSquared(GetActorLocation(), Target->GetActorLocation());
 
 	for (int i = 0; i < GameManager->GetNumBird(); i++)
 	{
@@ -156,53 +154,23 @@ void ARebelWolvesProjectile::OnStop(const FHitResult& Hit)
 
 void ARebelWolvesProjectile::TargetWasCatched()
 {
-	Energy += EnergyRecovered;
-	if (Energy > MaxEnergy)
+	if (Target)
 	{
-		Energy = MaxEnergy;
+		Energy += EnergyRecovered;
+		if (Energy > MaxEnergy)
+		{
+			Energy = MaxEnergy;
+		}
+		Target->Destroy();
+		Target = nullptr;
 	}
-	Target->Destroy();
-	Target = nullptr;
-
 	
 }
 
 
 FVector ARebelWolvesProjectile::Reversal(FVector _Velocity)
 {
-	FVector LookAheadPos = GetActorLocation() + _Velocity.GetSafeNormal() * LookAhead;
-
-	float xBoundary = GameManager->Size.X / 2;
-	float yBoundary = GameManager->Size.Y / 2;
-	float zBoundary = GameManager->MaxHeight;
-
-	FVector weight = FVector::ZeroVector;
-
-	if (LookAheadPos.X < -xBoundary || LookAheadPos.X > xBoundary)
-	{
-		if (LookAheadPos.X < 0)
-			weight.X = 1;
-		else
-			weight.X = -1;
-	}
-
-	if (LookAheadPos.Y < -yBoundary || LookAheadPos.Y > yBoundary)
-	{
-		if (LookAheadPos.Y < 0)
-			weight.Y = 1;
-		else
-			weight.Y = -1;
-	}
-
-	if (LookAheadPos.Z < 1000 || LookAheadPos.Z > zBoundary)
-	{
-		if (LookAheadPos.Z < 1000)
-			weight.Z = 1;
-		else
-			weight.Z = -1;
-	}
-
-	return (weight * 500);
+	return (1000 * GameManager->ReversalBehavior(GetActorLocation(), _Velocity, LookAhead));
 }
 
 

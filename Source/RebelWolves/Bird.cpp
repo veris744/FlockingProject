@@ -32,6 +32,7 @@ ABird::ABird()
 	PerceptionComp->SetupAttachment(RootComponent);
 	PerceptionComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	PerceptionComp->OnComponentBeginOverlap.AddDynamic(this, &ABird::OnOverlapBegin);
+	PerceptionComp->OnComponentEndOverlap.AddDynamic(this, &ABird::OnOverlapEnd);
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = RootComponent;
@@ -81,14 +82,36 @@ void ABird::Tick(float DeltaTime)
 void ABird::OnOverlapBegin(UPrimitiveComponent* OverlapComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	
-	if (OtherActor->GetClass()->IsChildOf(ARebelWolvesProjectile::StaticClass()) &&
-		FVector::DotProduct(GetActorForwardVector(), (OtherActor->GetActorLocation() - GetActorLocation()).GetSafeNormal()) <= FOV)
+	if (OtherActor->GetClass()->IsChildOf(ARebelWolvesProjectile::StaticClass()) )
+		//&& FVector::DotProduct(GetActorForwardVector(), (OtherActor->GetActorLocation() - GetActorLocation()).GetSafeNormal()) <= FOV)
 	{
 		PredatorDetected = true;
-		predator = Cast<ARebelWolvesProjectile>(OtherActor);
+		ARebelWolvesProjectile * predator = Cast<ARebelWolvesProjectile>(OtherActor);
+		if (!PredatorsInRange.Contains(predator))
+		{
+			PredatorsInRange.Add(predator);
+		}
 	}
 	
 }
+
+
+void ABird::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (OtherActor->GetClass()->IsChildOf(ARebelWolvesProjectile::StaticClass()))
+	{
+		ARebelWolvesProjectile* predator = Cast<ARebelWolvesProjectile>(OtherActor);
+		if (PredatorsInRange.Contains(predator))
+		{
+			PredatorsInRange.Remove(predator);
+		}
+		if (PredatorsInRange.IsEmpty())
+		{
+			PredatorDetected = false;
+		}
+	}
+}
+
 
 void ABird::OnStop(const FHitResult& Hit)
 {
@@ -143,6 +166,9 @@ FVector ABird::Cohesion(const TArray<ABird*>& birds)
 	steer.Normalize();
 	//steer -= Velocity.GetSafeNormal();
 
+
+	//if (GEngine)
+	//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::Printf(TEXT("%f"), (steer * GameManager->GetCohesionFactor()).Length()));
 	return (steer * GameManager->GetCohesionFactor());
 }
 
@@ -177,6 +203,9 @@ FVector ABird::Separation(const TArray<ABird*>& birds)
 	//steer -= Velocity.GetSafeNormal();
 
 
+
+	//if (GEngine)
+	//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%f"), (steer * GameManager->GetSeparationFactor()).Length()));
 	return (steer * GameManager->GetSeparationFactor());
 }
 
@@ -194,46 +223,15 @@ FVector ABird::Alignment(const TArray<ABird*>& birds)
 	steer.Normalize();
 	//steer -= Velocity.GetSafeNormal();
 
+
+	//if (GEngine)
+	//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("%f"), (steer * GameManager->GetAlignmentFactor()).Length()));
 	return (steer * GameManager->GetAlignmentFactor());
 }
 
 FVector ABird::Reversal(FVector _Velocity)
 {
-	FVector LookAheadPos = GetActorLocation() + _Velocity.GetSafeNormal() * LookAhead;
-
-	float xBoundary = GameManager->Size.X / 2;
-	float yBoundary = GameManager->Size.Y / 2;
-	float zBoundary = GameManager->MaxHeight;
-
-	FVector weight = FVector::ZeroVector;
-	//FVector wtf = GetActorLocation();
-	//DrawDebugLine(GetWorld(), wtf, LookAheadPos, FColor::Red, false, 3);
-
-	if (LookAheadPos.X < -xBoundary || LookAheadPos.X > xBoundary)
-	{
-		if (LookAheadPos.X < 0)
-			weight.X = 1;
-		else
-			weight.X = -1;
-	}
-
-	if (LookAheadPos.Y < -yBoundary || LookAheadPos.Y > yBoundary)
-	{
-		if (LookAheadPos.Y < 0)
-			weight.Y = 1;
-		else
-			weight.Y = -1;
-	}
-
-	if (LookAheadPos.Z < 1000 || LookAheadPos.Z > zBoundary)
-	{
-		if (LookAheadPos.Z < 1000)
-			weight.Z = 1;
-		else
-			weight.Z = -1;
-	}
-
-	return (weight * 1000);
+	return (5000 * GameManager->ReversalBehavior(GetActorLocation(), _Velocity, LookAhead));
 }
 
 void ABird::Flock(float DeltaTime)
@@ -259,11 +257,11 @@ void ABird::Flock(float DeltaTime)
 
 	
 
-	if (Acceleration.SquaredLength() > MaxAcceleration * MaxAcceleration)
+	/*if (Acceleration.SquaredLength() > MaxAcceleration * MaxAcceleration)
 	{
 		Acceleration.Normalize();
 		Acceleration *= MaxAcceleration;
-	}
+	}*/
 
 	Velocity += (Acceleration * DeltaTime);
 
@@ -273,7 +271,6 @@ void ABird::Flock(float DeltaTime)
 	Velocity.Normalize();
 	Velocity *= MaxVelocity;
 
-	
 
 	ProjectileMovement->Velocity = Velocity;
 
@@ -284,12 +281,23 @@ void ABird::RunAway(float DeltaTime)
 	FVector Acceleration = FVector::ZeroVector;
 	FVector Velocity = ProjectileMovement->Velocity;
 
-	if (!predator)
+	if (PredatorsInRange.IsEmpty())
 	{
+		PredatorDetected = false;
 		return;
 	}
 
-	Acceleration = -(predator->GetActorLocation() - GetActorLocation()).GetSafeNormal() * 200;
+	for (auto predator : PredatorsInRange)
+	{
+		//FVector dir = GetActorLocation() - predator->GetActorLocation();
+		//float ProximityFactor = 1 - (dir.Length() / PerceptionComp->GetScaledSphereRadius());
+		//dir.Normalize();
+		//Acceleration += (dir * ProximityFactor);
+
+		Acceleration += (GetActorLocation() - predator->GetActorLocation()).GetSafeNormal();
+	}
+
+	Acceleration = Acceleration.GetSafeNormal() * 300;
 
 	FVector tempVel = Velocity + (Acceleration * DeltaTime);
 	Acceleration += ObstacleAvoidance(tempVel);
@@ -298,11 +306,11 @@ void ABird::RunAway(float DeltaTime)
 	Acceleration += Reversal(tempVel);
 
 
-	if (Acceleration.SquaredLength() > MaxAcceleration * MaxAcceleration)
+	/*if (Acceleration.SquaredLength() > MaxAcceleration * MaxAcceleration)
 	{
 		Acceleration.Normalize();
 		Acceleration *= MaxAcceleration;
-	}
+	}*/
 
 	Velocity += (Acceleration * DeltaTime);
 
@@ -312,7 +320,7 @@ void ABird::RunAway(float DeltaTime)
 	Velocity.Normalize();
 	Velocity *= MaxVelocity;
 
-	//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + Velocity.GetSafeNormal() * 300, FColor::Red, false, 3);
+	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + Velocity.GetSafeNormal() * 300, FColor::Red, false, 3);
 
 	ProjectileMovement->Velocity = Velocity;
 }
@@ -325,7 +333,7 @@ FVector ABird::ObstacleAvoidance(FVector _Velocity)
 	FHitResult Hit;
 	FVector End = CollisionComp->GetComponentLocation() + _Velocity.GetSafeNormal() * LookAhead;
 	//GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), End, ECC_Visibility, FCollisionQueryParams());
-	UKismetSystemLibrary::BoxTraceSingle(GetWorld(), CollisionComp->GetComponentLocation(), End, CollisionComp->GetScaledBoxExtent() / 2,
+	UKismetSystemLibrary::BoxTraceSingle(GetWorld(), CollisionComp->GetComponentLocation(), End, CollisionComp->GetScaledBoxExtent(),
 		CollisionComp->GetComponentRotation(), UEngineTypes::ConvertToTraceType(ECC_Visibility),
 		false, TArray<AActor*>(), EDrawDebugTrace::None, Hit, true);
 	if (Hit.bBlockingHit)

@@ -9,7 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include <Kismet/GameplayStatics.h>
 #include "RebelWolvesGameMode.h"
-#include "UI/RWUserWidget.h"
+#include "GameManager.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -52,11 +52,8 @@ void ARebelWolvesCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-
-	if (GetWorld())
-	{
-		GameMode = Cast<ARebelWolvesGameMode>(GetWorld()->GetAuthGameMode());
-	}
+	if (UGameManager::GetGameManager())
+		UGameManager::GetGameManager()->UpdateAmmoUI(Ammo);
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
@@ -114,6 +111,8 @@ void ARebelWolvesCharacter::Fire()
 	{
 		return;
 	}
+	if (Ammo <= 0)	return;
+
 	// Try and fire a projectile
 	if (ProjectileClass != nullptr)
 	{
@@ -131,12 +130,10 @@ void ARebelWolvesCharacter::Fire()
 
 			// Spawn the projectile at the muzzle
 			World->SpawnActor<ARebelWolvesProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			
+			if (UGameManager::GetGameManager())
+				UGameManager::GetGameManager()->UpdateAmmoUI(--Ammo);
 		}
-
-		/*if (GameMode && GameMode->HUDWidget)
-		{
-			GameMode->HUDWidget->UpdateCount(++GameMode->HUDWidget->CurrNum);
-		}*/
 
 		// Try and play the sound if specified
 		if (FireSound != nullptr)

@@ -104,9 +104,9 @@ void UGameManager::RemovePredator(ARebelWolvesProjectile* _predator)
 	{
 		for (auto bird : AllBirds)
 		{
-			if (bird->predator == _predator)
+			if (bird->PredatorsInRange.Contains(_predator))
 			{
-				bird->predator = nullptr;
+				bird->PredatorsInRange.Remove(_predator);
 			}
 		}
 
@@ -133,4 +133,48 @@ void UGameManager::TransformPredator(ARebelWolvesProjectile* predator)
 	predator->Destroy();
 	ABird* newbird = GetWorld()->SpawnActor<ABird>(BirdClass, predatorLocation, predatorRotation, SpawnInfo);
 	AddBird(newbird);
+}
+
+FVector UGameManager::ReversalBehavior(FVector Location, FVector _Velocity, float LookAhead)
+{
+	FVector LookAheadPos = Location + _Velocity.GetSafeNormal() * LookAhead;
+
+	float xBoundary = Size.X / 2;
+	float yBoundary = Size.Y / 2;
+	float zBoundary = MaxHeight;
+
+	FVector weight = FVector::ZeroVector;
+	//FVector wtf = GetActorLocation();
+	//DrawDebugLine(GetWorld(), wtf, LookAheadPos, FColor::Red, false, 3);
+
+	if (LookAheadPos.X < -xBoundary || LookAheadPos.X > xBoundary)
+	{
+		if (LookAheadPos.X < 0)
+			weight.X = 1;
+		else
+			weight.X = -1;
+	}
+
+	if (LookAheadPos.Y < -yBoundary || LookAheadPos.Y > yBoundary)
+	{
+		if (LookAheadPos.Y < 0)
+			weight.Y = 1;
+		else
+			weight.Y = -1;
+	}
+
+	if (LookAheadPos.Z < 1000 || LookAheadPos.Z > zBoundary)
+	{
+		if (LookAheadPos.Z < 1000)
+			weight.Z = 1;
+		else
+			weight.Z = -1;
+	}
+
+	return weight;
+}
+
+void UGameManager::UpdateAmmoUI(int ammo)
+{
+	HUDWidget->UpdateAmmoCount(ammo);
 }

@@ -49,6 +49,8 @@ public:
 		void OnOverlapBegin(class UPrimitiveComponent* OverlapComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, 
 			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION()
+		void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION()
 
@@ -113,7 +115,7 @@ public:
 		float LookAhead = 700;
 
 	UPROPERTY()
-		ARebelWolvesProjectile* predator;
+		TArray<ARebelWolvesProjectile*> PredatorsInRange;
 
 	UFUNCTION()
 		void Flock(float DeltaTime);

@@ -13,7 +13,6 @@ class USceneComponent;
 class UCameraComponent;
 class UAnimMontage;
 class USoundBase;
-class ARebelWolvesGameMode;
 
 UCLASS(config=Game)
 class ARebelWolvesCharacter : public ACharacter
@@ -48,9 +47,6 @@ class ARebelWolvesCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 		class UInputAction* FireAction;
 
-
-	UPROPERTY()
-		ARebelWolvesGameMode* GameMode;
 
 	
 public:
@@ -97,6 +93,10 @@ public:
 	/** Gun muzzle's offset from the characters location */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 		FVector MuzzleOffset;
+
+	/** Gun muzzle's offset from the characters location */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+		int Ammo = 10;
 
 };
 

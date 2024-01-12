@@ -51,11 +51,11 @@ public:
 	int MaxHeight;
 	TArray<float> BuildingHeights;
 
-	constexpr float GetCohesionFactor() { return kCohesion; };
-	constexpr float GetSeparationFactor() { return kSeparation; };
-	constexpr float GetAlignmentFactor() { return kAlignment; };
-	constexpr float GetAvoidanceFactor() { return kAvoidance; };
-	inline FVector GetMapCenter() { return MapCenter; };
+	inline float GetCohesionFactor() const { return kCohesion; };
+	inline float GetSeparationFactor() const { return kSeparation; };
+	inline float GetAlignmentFactor() const { return kAlignment; };
+	inline float GetAvoidanceFactor() const { return kAvoidance; };
+	inline FVector GetMapCenter() const { return MapCenter; };
 
 	UFUNCTION()
 		void AddBird(ABird* _bird);
@@ -86,7 +86,12 @@ public:
 	UFUNCTION()
 		void TransformPredator(ARebelWolvesProjectile* predator);
 
+	UFUNCTION()
+		FVector ReversalBehavior(FVector Location, FVector _Velocity, float LookAhead);
 
 	UPROPERTY()
 		TSubclassOf<class ABird> BirdClass;
+
+	UFUNCTION()
+		void UpdateAmmoUI(int ammo);
 };
