@@ -28,7 +28,7 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 		UGameManager* Manager;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "HUDs", Meta = (BlueprintProtected = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = Manager)
 		TSubclassOf<class UUserWidget> HUD;
 
 
@@ -39,6 +39,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Manager)
 		TSubclassOf<class ABird> BirdClass;
 
+	UPROPERTY(EditAnywhere, Category = Manager)
+		TSubclassOf<class AActor> BuildingClass;
+
+	UPROPERTY(EditAnywhere, Category = Manager)
+		TSubclassOf<class AActor> FloorClass;
 };
 
 

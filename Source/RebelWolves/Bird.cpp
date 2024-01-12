@@ -350,14 +350,22 @@ FVector ABird::ObstacleAvoidance(FVector _Velocity)
 		}*/
 
 		//weight += Hit.ImpactNormal;
-		FVector temp1 = FVector::CrossProduct(Hit.GetActor()->GetActorUpVector(), Hit.ImpactNormal);
-		FVector temp2 = -FVector::CrossProduct(Hit.GetActor()->GetActorUpVector(), Hit.ImpactNormal);
 
-		float dist1 = FVector::Dist2D(GetActorLocation() + temp1, GameManager->GetMapCenter());
-		float dist2 = FVector::Dist2D(GetActorLocation() + temp2, GameManager->GetMapCenter());
+		if (Hit.ImpactNormal == Hit.GetActor()->GetActorUpVector())
+		{
+			 weight += Hit.ImpactNormal;
+		}
+		else
+		{
+			FVector temp1 = FVector::CrossProduct(Hit.GetActor()->GetActorUpVector(), Hit.ImpactNormal);
+			FVector temp2 = -FVector::CrossProduct(Hit.GetActor()->GetActorUpVector(), Hit.ImpactNormal);
 
-		if (dist1 < dist2)	weight += temp1;
-		else weight += temp2;
+			float dist1 = FVector::Dist2D(GetActorLocation() + temp1, GameManager->GetMapCenter());
+			float dist2 = FVector::Dist2D(GetActorLocation() + temp2, GameManager->GetMapCenter());
+
+			if (dist1 < dist2)	weight += temp1;
+			else weight += temp2;
+		}
 	}
 	//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + weight * 300, FColor::Red, false, 3);
 	return (weight * 10000);

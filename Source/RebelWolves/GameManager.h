@@ -34,6 +34,9 @@ class REBELWOLVES_API UGameManager : public UObject
 	const float kAlignment = 100;
 	const float kAvoidance = 10000;
 	FVector MapCenter = FVector::ZeroVector;
+	FVector2D BuildingDimentions = FVector2D(700, 700);
+	float BuildingMargin = 200;
+	float HeightMargin = 1000;
 	
 public:
 	UGameManager()
@@ -44,6 +47,9 @@ public:
 	void SetHudWidget(URWUserWidget* _HUDWidget) { HUDWidget = _HUDWidget; };
 
 	bool SetConfiguration();
+
+	UFUNCTION()
+	void LoadLevel();
 
 	static UGameManager* GetGameManager();
 
@@ -91,6 +97,12 @@ public:
 
 	UPROPERTY()
 		TSubclassOf<class ABird> BirdClass;
+
+	UPROPERTY()
+		TSubclassOf<class AActor> BuildingClass;
+
+	UPROPERTY()
+		TSubclassOf<class AActor> FloorClass;
 
 	UFUNCTION()
 		void UpdateAmmoUI(int ammo);

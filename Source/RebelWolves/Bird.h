@@ -20,9 +20,6 @@ class REBELWOLVES_API ABird : public AActor
 {
 	GENERATED_BODY()
 
-
-	UPROPERTY()
-		ARebelWolvesGameMode* GameMode;
 	
 public:	
 	// Sets default values for this actor's properties

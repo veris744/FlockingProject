@@ -6,6 +6,7 @@
 #include "Bird.h"
 #include "UI/RWUserWidget.h"
 #include <Misc/DefaultValueHelper.h>
+#include <Kismet/GameplayStatics.h>
 
 UGameManager* UGameManager::Instance = nullptr;
 
@@ -55,25 +56,69 @@ bool UGameManager::SetConfiguration()
 		BuildingHeights.Add(h);
 	}
 
-	int tempMaxHeight;
 
-	GConfig->GetInt(TEXT("Setup"),
-		TEXT("MaxHeight"),
-		tempMaxHeight,
-		GEditorPerProjectIni);
-
-	if (tempMaxHeight < 0)	return false;
-
-	MaxHeight = tempMaxHeight;
+	MaxHeight = BuildingHeights.Max();;
 
 	return true;
 }
+
+void UGameManager::LoadLevel()
+{
+	for (auto Bird : AllBirds)
+	{
+		Bird->SetActorLocation(FVector(Bird->GetActorLocation().X, Bird->GetActorLocation().Y, MaxHeight - HeightMargin / 2));
+	}
+
+	if (!FloorClass)	return;
+
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo;
+
+	AActor* floor = GetWorld()->SpawnActor<AActor>(FloorClass, FVector(0, 0, 0), FRotator(0, 0, 0), SpawnInfo);
+	floor->SetActorScale3D(FVector(Size.X / 100, Size.Y / 100, 1));
+
+
+	if (!BuildingClass)	return;
+
+	int rows = FMath::FloorToInt(Size.X / (BuildingDimentions.X + BuildingMargin));
+	int cols = FMath::FloorToInt(Size.Y / (BuildingDimentions.Y + BuildingMargin));
+
+
+	FVector pos;
+	AActor* tempBuilding;
+	int num = 0;
+
+	for (int i = 1; i < rows; i+=2)
+	{
+		for (int j = 1; j < cols; j+=2)
+		{
+			pos = FVector(i * (BuildingDimentions.X + BuildingMargin) - (Size.X / 2), j * (BuildingDimentions.Y + BuildingMargin) - (Size.Y / 2), 
+				BuildingHeights[num]/2);
+			tempBuilding = GetWorld()->SpawnActor<AActor>(BuildingClass, pos, FRotator(0, 0, 0), SpawnInfo);
+			tempBuilding->SetActorScale3D(FVector(BuildingDimentions.X / 100, BuildingDimentions.Y / 100, BuildingHeights[num] / 100));
+
+			++num;
+
+			if (num >= BuildingHeights.Num())
+				break;
+		}
+		if (num >= BuildingHeights.Num())
+			break;
+	}
+
+	if (num < BuildingHeights.Num())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Floor not big enough for all buildings"));
+	}
+
+	return;
+}
+
 
 UGameManager* UGameManager::GetGameManager()
 {
 	return Instance;
 }
-
 
 
 void UGameManager::AddBird(ABird* _bird)
@@ -150,8 +195,6 @@ FVector UGameManager::ReversalBehavior(FVector Location, FVector _Velocity, floa
 	float zBoundary = MaxHeight;
 
 	FVector weight = FVector::ZeroVector;
-	//FVector wtf = GetActorLocation();
-	//DrawDebugLine(GetWorld(), wtf, LookAheadPos, FColor::Red, false, 3);
 
 	if (LookAheadPos.X < -xBoundary || LookAheadPos.X > xBoundary)
 	{
@@ -169,9 +212,9 @@ FVector UGameManager::ReversalBehavior(FVector Location, FVector _Velocity, floa
 			weight.Y = -1;
 	}
 
-	if (LookAheadPos.Z < 1000 || LookAheadPos.Z > zBoundary)
+	if (LookAheadPos.Z < 800 || LookAheadPos.Z > zBoundary)
 	{
-		if (LookAheadPos.Z < 1000)
+		if (LookAheadPos.Z < 800)
 			weight.Z = 1;
 		else
 			weight.Z = -1;

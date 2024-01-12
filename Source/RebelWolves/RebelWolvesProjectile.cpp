@@ -121,10 +121,7 @@ void ARebelWolvesProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 
 	if ((OtherActor != nullptr) && (OtherActor != this) && OtherActor->GetClass()->IsChildOf(ABird::StaticClass()))
 	{
-		//if (OtherActor == Target)	Target = nullptr;
-		//OtherActor->Destroy();
 		TargetWasCatched();
-
 	}
 }
 
@@ -161,6 +158,7 @@ void ARebelWolvesProjectile::TargetWasCatched()
 		{
 			Energy = MaxEnergy;
 		}
+		GameManager->RemoveBird(Target);
 		Target->Destroy();
 		Target = nullptr;
 	}

@@ -30,6 +30,14 @@ void ARebelWolvesGameMode::InitGame(const FString& MapName, const FString& Optio
 	{
 		Manager->BirdClass = BirdClass;
 	}
+	if (FloorClass)
+	{
+		Manager->FloorClass = FloorClass;
+	}
+	if (BuildingClass)
+	{
+		Manager->BuildingClass = BuildingClass;
+	}
 
 	if (HUD)
 	{
@@ -38,4 +46,6 @@ void ARebelWolvesGameMode::InitGame(const FString& MapName, const FString& Optio
 		HUDWidget->SetVisibility(ESlateVisibility::Visible);
 		Manager->SetHudWidget(HUDWidget);
 	}
+
+	Manager->LoadLevel();
 }
