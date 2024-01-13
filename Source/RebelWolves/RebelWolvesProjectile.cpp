@@ -32,6 +32,7 @@ ARebelWolvesProjectile::ARebelWolvesProjectile()
 	ProjectileMovement->UpdatedComponent = RootComponent;
 	ProjectileMovement->bRotationFollowsVelocity = false;
 	ProjectileMovement->ProjectileGravityScale = 0;
+	ProjectileMovement->InitialSpeed = 500;
 	ProjectileMovement->OnProjectileStop.AddDynamic(this, &ARebelWolvesProjectile::OnStop);
 
 	Energy = MaxEnergy;
@@ -66,18 +67,17 @@ void ARebelWolvesProjectile::Tick(float DeltaTime)
 
 	if (distance < AccelerationRadius)
 	{
-		speed = DefaultSpeed + (distance * (MaxSpeed - DefaultSpeed) / AccelerationRadius);
+		float ProximityFactor = 1 - (distance / AccelerationRadius);
+		speed = DefaultSpeed + ProximityFactor * (MaxSpeed - DefaultSpeed);
 		EnergyUsed = speed;
 	}
 
-	if (distance > 1000)
-	{
-		FVector tempVel = Velocity + (Acceleration * DeltaTime);
-		Acceleration += Reversal(tempVel);
+	//FVector tempVel = Velocity + (Acceleration * DeltaTime);
+	//Acceleration += Reversal(tempVel);
 
-		tempVel = Velocity + (Acceleration * DeltaTime);
-		Acceleration += ObstacleAvoidance(ProjectileMovement->Velocity);
-	}
+	FVector tempVel = Velocity + (Acceleration * DeltaTime);
+	Acceleration += ObstacleAvoidance(tempVel);
+	
 
 	Velocity += (Acceleration * DeltaTime);
 	Velocity.Normalize();
