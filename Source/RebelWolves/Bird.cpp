@@ -36,7 +36,7 @@ ABird::ABird()
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = RootComponent;
-	ProjectileMovement->bRotationFollowsVelocity = true;
+	ProjectileMovement->bRotationFollowsVelocity = false;
 	ProjectileMovement->ProjectileGravityScale = 0;
 	ProjectileMovement->OnProjectileStop.AddDynamic(this, &ABird::OnStop);
 	
@@ -236,6 +236,9 @@ FVector ABird::Reversal(FVector _Velocity)
 
 void ABird::Flock(float DeltaTime)
 {
+	SetActorRotation(FRotator(0, ProjectileMovement->Velocity.Rotation().Yaw,
+		0));
+
 	FVector Acceleration = FVector::ZeroVector;
 	FVector Velocity = ProjectileMovement->Velocity;
 
@@ -338,35 +341,51 @@ FVector ABird::ObstacleAvoidance(FVector _Velocity)
 		false, TArray<AActor*>(), EDrawDebugTrace::None, Hit, true);
 	if (Hit.bBlockingHit)
 	{
-		//FVector Avoid = End - Hit.GetActor()->GetActorLocation();
-		//weight += Avoid.GetSafeNormal2D();
-		/*if (FVector::DotProduct(_Velocity.GetSafeNormal2D(), (Hit.GetActor()->GetActorLocation() - GetActorLocation()).GetSafeNormal2D()) > 0)
-		{
-			weight -= GetActorLocation();
-		}
-		else
-		{
-			weight -= GetActorLocation();
-		}*/
-
-		//weight += Hit.ImpactNormal;
-
+		weight += Hit.ImpactNormal;
 		if (Hit.ImpactNormal == Hit.GetActor()->GetActorUpVector())
 		{
-			 weight += Hit.ImpactNormal;
+			FVector temp1 = Hit.GetActor()->GetActorRightVector();
+
+			float f = FVector::DotProduct(temp1, (GetActorLocation() - Hit.GetActor()->GetActorLocation()).GetSafeNormal());
+
+			if (f >= 0)
+			{
+				weight += temp1.GetSafeNormal();
+			}
+			else
+			{
+				weight -= temp1.GetSafeNormal();
+			}
+			 //weight += Hit.ImpactNormal;
 		}
 		else
 		{
 			FVector temp1 = FVector::CrossProduct(Hit.GetActor()->GetActorUpVector(), Hit.ImpactNormal);
-			FVector temp2 = -FVector::CrossProduct(Hit.GetActor()->GetActorUpVector(), Hit.ImpactNormal);
 
-			float dist1 = FVector::Dist2D(GetActorLocation() + temp1, GameManager->GetMapCenter());
-			float dist2 = FVector::Dist2D(GetActorLocation() + temp2, GameManager->GetMapCenter());
+			float f = FVector::DotProduct(_Velocity.GetSafeNormal(), temp1.GetSafeNormal());
 
-			if (dist1 < dist2)	weight += temp1;
-			else weight += temp2;
+
+			if (f >= 0)
+			{
+				weight += temp1.GetSafeNormal();
+			}
+			else
+			{
+				weight -= temp1.GetSafeNormal();
+			}
+
+			//&& FVector::DotProduct(GetActorForwardVector(), (OtherActor->GetActorLocation() - GetActorLocation()).GetSafeNormal()) <= FOV)
+
+			//FVector temp2 = -FVector::CrossProduct(Hit.GetActor()->GetActorUpVector(), Hit.ImpactNormal);
+
+			//float dist1 = FVector::Dist2D(GetActorLocation() + temp1, GameManager->GetMapCenter());
+			//float dist2 = FVector::Dist2D(GetActorLocation() + temp2, GameManager->GetMapCenter());
+
+			//if (dist1 < dist2)	weight += temp1;
+			//else weight += temp2;
 		}
+		//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + weight * 300, FColor::Red, false, 3);
 	}
-	//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + weight * 300, FColor::Red, false, 3);
+	
 	return (weight * 10000);
 }
