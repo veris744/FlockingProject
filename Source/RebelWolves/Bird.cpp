@@ -4,7 +4,6 @@
 #include "Bird.h"
 #include <Components/SphereComponent.h>
 #include <Components/BoxComponent.h>
-#include "RebelWolves/RebelWolvesGameMode.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "GameManager.h"
 #include "RebelWolvesProjectile.h"
@@ -98,7 +97,7 @@ void ABird::OnOverlapBegin(UPrimitiveComponent* OverlapComponent, AActor* OtherA
 
 void ABird::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor->GetClass()->IsChildOf(ARebelWolvesProjectile::StaticClass()))
+	if (OtherActor && OtherActor->GetClass()->IsChildOf(ARebelWolvesProjectile::StaticClass()))
 	{
 		ARebelWolvesProjectile* predator = Cast<ARebelWolvesProjectile>(OtherActor);
 		if (PredatorsInRange.Contains(predator))
@@ -164,11 +163,7 @@ FVector ABird::Cohesion(const TArray<ABird*>& birds)
 	AveragePosition = AveragePosition / birds.Num();
 	FVector steer = AveragePosition - GetActorLocation();
 	steer.Normalize();
-	//steer -= Velocity.GetSafeNormal();
 
-
-	//if (GEngine)
-	//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, FString::Printf(TEXT("%f"), (steer * GameManager->GetCohesionFactor()).Length()));
 	return (steer * GameManager->GetCohesionFactor());
 }
 
@@ -200,12 +195,7 @@ FVector ABird::Separation(const TArray<ABird*>& birds)
 		steer = steer / numBirds;
 
 	steer.Normalize();
-	//steer -= Velocity.GetSafeNormal();
 
-
-
-	//if (GEngine)
-	//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT("%f"), (steer * GameManager->GetSeparationFactor()).Length()));
 	return (steer * GameManager->GetSeparationFactor());
 }
 
@@ -221,11 +211,7 @@ FVector ABird::Alignment(const TArray<ABird*>& birds)
 	}
 
 	steer.Normalize();
-	//steer -= Velocity.GetSafeNormal();
 
-
-	//if (GEngine)
-	//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("%f"), (steer * GameManager->GetAlignmentFactor()).Length()));
 	return (steer * GameManager->GetAlignmentFactor());
 }
 
@@ -323,19 +309,20 @@ void ABird::RunAway(float DeltaTime)
 	Velocity.Normalize();
 	Velocity *= MaxVelocity;
 
-	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + Velocity.GetSafeNormal() * 300, FColor::Red, false, 3);
+	//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + Velocity.GetSafeNormal() * 300, FColor::Red, false, 3);
 
 	ProjectileMovement->Velocity = Velocity;
 }
 
 FVector ABird::ObstacleAvoidance(FVector _Velocity)
 {
+
 	if (!CollisionComp)	return FVector::Zero();
 
 	FVector weight = FVector::ZeroVector;
 	FHitResult Hit;
 	FVector End = CollisionComp->GetComponentLocation() + _Velocity.GetSafeNormal() * LookAhead;
-	//GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), End, ECC_Visibility, FCollisionQueryParams());
+
 	UKismetSystemLibrary::BoxTraceSingle(GetWorld(), CollisionComp->GetComponentLocation(), End, CollisionComp->GetScaledBoxExtent(),
 		CollisionComp->GetComponentRotation(), UEngineTypes::ConvertToTraceType(ECC_Visibility),
 		false, TArray<AActor*>(), EDrawDebugTrace::None, Hit, true);
@@ -356,7 +343,6 @@ FVector ABird::ObstacleAvoidance(FVector _Velocity)
 			{
 				weight -= temp1.GetSafeNormal();
 			}
-			 //weight += Hit.ImpactNormal;
 		}
 		else
 		{
@@ -373,16 +359,6 @@ FVector ABird::ObstacleAvoidance(FVector _Velocity)
 			{
 				weight -= temp1.GetSafeNormal();
 			}
-
-			//&& FVector::DotProduct(GetActorForwardVector(), (OtherActor->GetActorLocation() - GetActorLocation()).GetSafeNormal()) <= FOV)
-
-			//FVector temp2 = -FVector::CrossProduct(Hit.GetActor()->GetActorUpVector(), Hit.ImpactNormal);
-
-			//float dist1 = FVector::Dist2D(GetActorLocation() + temp1, GameManager->GetMapCenter());
-			//float dist2 = FVector::Dist2D(GetActorLocation() + temp2, GameManager->GetMapCenter());
-
-			//if (dist1 < dist2)	weight += temp1;
-			//else weight += temp2;
 		}
 		//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + weight * 300, FColor::Red, false, 3);
 	}

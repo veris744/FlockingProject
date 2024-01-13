@@ -44,6 +44,8 @@ public:
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* AmmoCount;
 
+	UPROPERTY(meta = (BindWidget))
+		UTextBlock* ResultText;
 
 	UFUNCTION()
 		void UpdateBirdCount(int num);

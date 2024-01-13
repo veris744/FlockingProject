@@ -29,10 +29,8 @@ ARebelWolvesProjectile::ARebelWolvesProjectile()
 
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
-	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 3000.f;
-	ProjectileMovement->MaxSpeed = 3000.f;
-	ProjectileMovement->bRotationFollowsVelocity = true;
+	ProjectileMovement->UpdatedComponent = RootComponent;
+	ProjectileMovement->bRotationFollowsVelocity = false;
 	ProjectileMovement->ProjectileGravityScale = 0;
 	ProjectileMovement->OnProjectileStop.AddDynamic(this, &ARebelWolvesProjectile::OnStop);
 
@@ -72,22 +70,27 @@ void ARebelWolvesProjectile::Tick(float DeltaTime)
 		EnergyUsed = speed;
 	}
 
-	FVector tempVel = Velocity + (Acceleration * DeltaTime);
-	Acceleration += ObstacleAvoidance(tempVel);
+	if (distance > 1000)
+	{
+		FVector tempVel = Velocity + (Acceleration * DeltaTime);
+		Acceleration += Reversal(tempVel);
 
-	tempVel = Velocity + (Acceleration * DeltaTime);
-	Acceleration += Reversal(tempVel);
+		tempVel = Velocity + (Acceleration * DeltaTime);
+		Acceleration += ObstacleAvoidance(ProjectileMovement->Velocity);
+	}
 
+	Velocity += (Acceleration * DeltaTime);
 	Velocity.Normalize();
 	Velocity *= speed;
 
 	Energy -= (EnergyUsed /100) * DeltaTime;
 
 
-	//if (GEngine)
-		//GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("%f"), Energy));
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("%f"), speed));
 
 	ProjectileMovement->Velocity = Velocity;
+	//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + ProjectileMovement->Velocity.GetSafeNormal() * 300, FColor::Red, false, 3);
 }
 
 
@@ -179,21 +182,45 @@ FVector ARebelWolvesProjectile::ObstacleAvoidance(FVector _Velocity)
 	FVector weight = FVector::ZeroVector;
 	FHitResult Hit;
 	FVector End = CollisionComp->GetComponentLocation() + _Velocity.GetSafeNormal() * LookAhead;
-	//GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), End, ECC_Visibility, FCollisionQueryParams());
-	UKismetSystemLibrary::SphereTraceSingle(GetWorld(), CollisionComp->GetComponentLocation(), End, CollisionComp->GetScaledSphereRadius(),
-		UEngineTypes::ConvertToTraceType(ECC_Visibility),
-		false, TArray<AActor*>(), EDrawDebugTrace::None, Hit, true);
+
+	UKismetSystemLibrary::SphereTraceSingle(GetWorld(), CollisionComp->GetComponentLocation(), End, CollisionComp->GetScaledSphereRadius(), 
+		UEngineTypes::ConvertToTraceType(ECC_Visibility), false, TArray<AActor*>(), EDrawDebugTrace::None, Hit, true);
+
 	if (Hit.bBlockingHit)
 	{
-		FVector temp1 = FVector::CrossProduct(Hit.GetActor()->GetActorUpVector(), Hit.ImpactNormal);
-		FVector temp2 = -FVector::CrossProduct(Hit.GetActor()->GetActorUpVector(), Hit.ImpactNormal);
+		weight += Hit.ImpactNormal;
+		if (Hit.ImpactNormal == Hit.GetActor()->GetActorUpVector())
+		{
+			FVector temp1 = Hit.GetActor()->GetActorRightVector();
 
-		float dist1 = FVector::Dist2D(GetActorLocation() + temp1, GameManager->GetMapCenter());
-		float dist2 = FVector::Dist2D(GetActorLocation() + temp2, GameManager->GetMapCenter());
+			float f = FVector::DotProduct(temp1, (GetActorLocation() - Hit.GetActor()->GetActorLocation()).GetSafeNormal());
 
-		if (dist1 < dist2)	weight += temp1;
-		else weight += temp2;
+			if (f >= 0)
+			{
+				weight += temp1.GetSafeNormal();
+			}
+			else
+			{
+				weight -= temp1.GetSafeNormal();
+			}
+		}
+		else
+		{
+			FVector temp1 = FVector::CrossProduct(Hit.GetActor()->GetActorUpVector(), Hit.ImpactNormal);
+
+			float f = FVector::DotProduct(_Velocity.GetSafeNormal(), temp1.GetSafeNormal());
+
+
+			if (f >= 0)
+			{
+				weight += temp1.GetSafeNormal();
+			}
+			else
+			{
+				weight -= temp1.GetSafeNormal();
+			}
+		}
 	}
-	//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + weight * 300, FColor::Red, false, 3);
+
 	return (weight * 10000);
 }

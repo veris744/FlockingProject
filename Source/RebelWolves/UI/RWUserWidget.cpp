@@ -19,6 +19,8 @@ void URWUserWidget::NativeConstruct()
 		PredatorsCount->SetText(FText::FromString(s + FString::FromInt(UGameManager::GetGameManager()->GetNumPredator())));
 
 	}
+
+	ResultText->SetText(FText::FromString(""));
 	
 }
 

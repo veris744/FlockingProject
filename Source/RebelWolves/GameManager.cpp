@@ -7,6 +7,8 @@
 #include "UI/RWUserWidget.h"
 #include <Misc/DefaultValueHelper.h>
 #include <Kismet/GameplayStatics.h>
+#include "Components/TextBlock.h"
+#include "RebelWolvesCharacter.h"
 
 UGameManager* UGameManager::Instance = nullptr;
 
@@ -111,6 +113,8 @@ void UGameManager::LoadLevel()
 		UE_LOG(LogTemp, Warning, TEXT("Floor not big enough for all buildings"));
 	}
 
+	CharacterStart = FVector(0, -Size.Y / 2 + 100, 0);
+
 	return;
 }
 
@@ -129,10 +133,18 @@ void UGameManager::AddBird(ABird* _bird)
 
 void UGameManager::RemoveBird(ABird* _bird)
 {
+	if(!_bird)	return;
+
 	if (AllBirds.Contains(_bird))
 	{
 		AllBirds.Remove(_bird);
 		HUDWidget->UpdateBirdCount(AllBirds.Num());
+
+		if (AllBirds.Num() <= 0)
+		{
+			HUDWidget->ResultText->SetText(FText::FromString("YOU WON"));
+			UGameplayStatics::SetGamePaused(GetWorld(), true);
+		}
 	}
 }
 
@@ -183,7 +195,15 @@ void UGameManager::TransformPredator(ARebelWolvesProjectile* predator)
 	RemovePredator(predator);
 	predator->Destroy();
 	ABird* newbird = GetWorld()->SpawnActor<ABird>(BirdClass, predatorLocation, predatorRotation, SpawnInfo);
-	AddBird(newbird);
+	//AddBird(newbird);
+
+	ARebelWolvesCharacter* Player = Cast<ARebelWolvesCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	if (Player && AllBirds.Num() > 0 && Player->Ammo <= 0 && AllPredators.Num() <= 0)
+	{
+		HUDWidget->ResultText->SetText(FText::FromString("YOU LOST"));
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+	}
 }
 
 FVector UGameManager::ReversalBehavior(FVector Location, FVector _Velocity, float LookAhead)

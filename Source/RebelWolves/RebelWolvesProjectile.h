@@ -52,11 +52,11 @@ public:
 
 
 	UPROPERTY(VisibleAnywhere, Category = Predator)
-		float DefaultSpeed = 500;
+		float DefaultSpeed = 600;
 
 
 	UPROPERTY(VisibleAnywhere, Category = Predator)
-		float MaxSpeed = 900;
+		float MaxSpeed = 1500;
 
 	UPROPERTY(VisibleAnywhere, Category = Predator)
 		float MinEnergyExp = 200;
@@ -71,7 +71,7 @@ public:
 		float AccelerationRadius = 1000;
 
 	UPROPERTY(EditAnywhere, Category = "Flock")
-		float LookAhead = 700;
+		float LookAhead = 300;
 
 	UPROPERTY(VisibleAnywhere, Category = Predator)
 		FVector Velocity;

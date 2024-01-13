@@ -34,6 +34,7 @@ class REBELWOLVES_API UGameManager : public UObject
 	const float kAlignment = 100;
 	const float kAvoidance = 10000;
 	FVector MapCenter = FVector::ZeroVector;
+	FVector CharacterStart;
 	FVector2D BuildingDimentions = FVector2D(700, 700);
 	float BuildingMargin = 200;
 	float HeightMargin = 1000;
@@ -62,6 +63,7 @@ public:
 	inline float GetAlignmentFactor() const { return kAlignment; };
 	inline float GetAvoidanceFactor() const { return kAvoidance; };
 	inline FVector GetMapCenter() const { return MapCenter; };
+	inline FVector GetCharacterStart() const { return CharacterStart; };
 
 	UFUNCTION()
 		void AddBird(ABird* _bird);
