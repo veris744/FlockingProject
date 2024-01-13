@@ -13,18 +13,17 @@ ARebelWolvesGameMode::ARebelWolvesGameMode()
 	// set default pawn class to our Blueprinted character
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/FirstPerson/Blueprints/BP_FirstPersonCharacter"));
 	DefaultPawnClass = PlayerPawnClassFinder.Class;
-
 }
 
 void ARebelWolvesGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
 
+
 	Manager = NewObject<UGameManager>(this, TEXT("GameManager"));
 	if (!Manager->SetConfiguration())
 	{
 		UE_LOG(LogTemp, Fatal, TEXT("Config File is wrong."));
-		FGenericPlatformMisc::RequestExit(false);
 	}
 	if (BirdClass)
 	{

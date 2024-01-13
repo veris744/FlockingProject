@@ -9,6 +9,7 @@
 #include <Kismet/GameplayStatics.h>
 #include "Components/TextBlock.h"
 #include "RebelWolvesCharacter.h"
+#include "Misc/Paths.h"
 
 UGameManager* UGameManager::Instance = nullptr;
 
@@ -19,13 +20,35 @@ bool UGameManager::SetConfiguration()
 
 	TArray<FString> tempSize;
 
+
+	TArray<FString> tempHeights;
+	GConfig->GetArray(TEXT("Setup"),
+		TEXT("Height"),
+		tempHeights,
+		GGameIni);
+
+	float h;
+
+	for (auto val : tempHeights)
+	{
+		if (!FDefaultValueHelper::ParseFloat(val, h))
+		{
+			UE_LOG(LogTemp, Fatal, TEXT("Config File: Wrong Heights"));
+			return false;
+		}
+
+		BuildingHeights.Add(h);
+	}
+
+
 	GConfig->GetArray(TEXT("Setup"),
 		TEXT("Size"),
 		tempSize,
-		GEditorPerProjectIni);
+		GGameIni);
 
 	if (tempSize.Num() != 2)
 	{
+		UE_LOG(LogTemp, Fatal, TEXT("Config File: Wrong Size: %d"), tempSize.Num());
 		return false;
 	}
 
@@ -35,6 +58,7 @@ bool UGameManager::SetConfiguration()
 	if (!FDefaultValueHelper::ParseFloat(tempSize[0], x)
 		|| !FDefaultValueHelper::ParseFloat(tempSize[1], y))
 	{
+		UE_LOG(LogTemp, Fatal, TEXT("Config File: Wrong Size"));
 		return false;
 	}
 
@@ -42,24 +66,8 @@ bool UGameManager::SetConfiguration()
 	Size.Y = y;
 
 
-	TArray<FString> tempHeights;
 
-	GConfig->GetArray(TEXT("Setup"),
-		TEXT("Height"),
-		tempHeights,
-		GEditorPerProjectIni);
-
-	float h;
-
-	for (auto val : tempHeights)
-	{
-		if (!FDefaultValueHelper::ParseFloat(val, h))	return false;
-
-		BuildingHeights.Add(h);
-	}
-
-
-	MaxHeight = BuildingHeights.Max();;
+	MaxHeight = BuildingHeights.Max();
 
 	return true;
 }
