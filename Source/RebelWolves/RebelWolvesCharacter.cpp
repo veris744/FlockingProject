@@ -19,24 +19,13 @@ ARebelWolvesCharacter::ARebelWolvesCharacter()
 {
 	MuzzleOffset = FVector(100.0f, 0.0f, 50.0f);
 	
-	// Set size for collision capsule
+
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 		
-	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
-
-	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
-	//Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
-	//Mesh1P->SetOnlyOwnerSee(true);
-	//Mesh1P->SetupAttachment(FirstPersonCameraComponent);
-	//Mesh1P->bCastDynamicShadow = false;
-	//Mesh1P->CastShadow = false;
-	////Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
-	//Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
-
 
 
 }
@@ -93,12 +82,10 @@ void ARebelWolvesCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 void ARebelWolvesCharacter::Move(const FInputActionValue& Value)
 {
-	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
-		// add movement 
 		AddMovementInput(GetActorForwardVector(), MovementVector.Y);
 		AddMovementInput(GetActorRightVector(), MovementVector.X);
 	}
@@ -106,12 +93,10 @@ void ARebelWolvesCharacter::Move(const FInputActionValue& Value)
 
 void ARebelWolvesCharacter::Look(const FInputActionValue& Value)
 {
-	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
-		// add yaw and pitch input to controller
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
@@ -125,7 +110,7 @@ void ARebelWolvesCharacter::Fire()
 	}
 	if (Ammo <= 0)	return;
 
-	// Try and fire a projectile
+
 	if (ProjectileClass != nullptr)
 	{
 		UWorld* const World = GetWorld();
@@ -133,25 +118,19 @@ void ARebelWolvesCharacter::Fire()
 		{
 			APlayerController* PlayerController = Cast<APlayerController>(GetController());
 			const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
-			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 			const FVector SpawnLocation = GetActorLocation() + SpawnRotation.RotateVector(MuzzleOffset);
 
-			//Set Spawn Collision Handling Override
+
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-			// Spawn the projectile at the muzzle
+
 			World->SpawnActor<ARebelWolvesProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 			
 			if (UGameManager::GetGameManager())
 				UGameManager::GetGameManager()->UpdateAmmoUI(--Ammo);
 		}
 
-		// Try and play the sound if specified
-		if (FireSound != nullptr)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-		}
 	}
 
 	
