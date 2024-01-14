@@ -10,6 +10,7 @@
 #include "Components/TextBlock.h"
 #include "RebelWolvesCharacter.h"
 #include "Misc/Paths.h"
+#include <Components/Button.h>
 
 UGameManager* UGameManager::Instance = nullptr;
 
@@ -151,6 +152,15 @@ void UGameManager::RemoveBird(ABird* _bird)
 		if (AllBirds.Num() <= 0)
 		{
 			HUDWidget->ResultText->SetText(FText::FromString("YOU WON"));
+			HUDWidget->RestartButton->SetVisibility(ESlateVisibility::Visible);
+			APlayerController* MyController = GetWorld()->GetFirstPlayerController();
+			if (MyController)
+			{
+				MyController->SetInputMode(FInputModeGameOnly());
+				MyController->bShowMouseCursor = true;
+				MyController->bEnableClickEvents = true;
+				MyController->bEnableMouseOverEvents = true;
+			}
 			UGameplayStatics::SetGamePaused(GetWorld(), true);
 		}
 	}
@@ -210,6 +220,15 @@ void UGameManager::TransformPredator(ARebelWolvesProjectile* predator)
 	if (Player && AllBirds.Num() > 0 && Player->Ammo <= 0 && AllPredators.Num() <= 0)
 	{
 		HUDWidget->ResultText->SetText(FText::FromString("YOU LOST"));
+		HUDWidget->RestartButton->SetVisibility(ESlateVisibility::Visible);
+		APlayerController* MyController = GetWorld()->GetFirstPlayerController();
+		if (MyController)
+		{
+			MyController->SetInputMode(FInputModeGameOnly());
+			MyController->bShowMouseCursor = true;
+			MyController->bEnableClickEvents = true;
+			MyController->bEnableMouseOverEvents = true;
+		}
 		UGameplayStatics::SetGamePaused(GetWorld(), true);
 	}
 }

@@ -11,6 +11,7 @@
 class UImage;
 class UTextBlock;
 class ARebelWolvesGameMode;
+class UButton;
 
 /**
  * 
@@ -47,6 +48,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* ResultText;
 
+	UPROPERTY(meta = (BindWidget))
+		UButton* RestartButton;
+
 	UFUNCTION()
 		void UpdateBirdCount(int num);
 
@@ -56,5 +60,9 @@ public:
 	UFUNCTION()
 		void UpdateAmmoCount(int num);
 
+	UFUNCTION()
+		void OnClickedRestart();
+
 	int CurrBirds;
 };
+

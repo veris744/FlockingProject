@@ -31,7 +31,7 @@ ABird::ABird()
 	PerceptionComp->SetupAttachment(RootComponent);
 	PerceptionComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	PerceptionComp->OnComponentBeginOverlap.AddDynamic(this, &ABird::OnOverlapBegin);
-	PerceptionComp->OnComponentEndOverlap.AddDynamic(this, &ABird::OnOverlapEnd);
+	//PerceptionComp->OnComponentEndOverlap.AddDynamic(this, &ABird::OnOverlapEnd);
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = RootComponent;
@@ -98,7 +98,7 @@ void ABird::OnOverlapBegin(UPrimitiveComponent* OverlapComponent, AActor* OtherA
 	
 }
 
-
+/*
 void ABird::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (OtherActor && OtherActor->GetClass()->IsChildOf(ARebelWolvesProjectile::StaticClass()))
@@ -114,7 +114,7 @@ void ABird::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor
 		}
 	}
 }
-
+*/
 
 void ABird::OnStop(const FHitResult& Hit)
 {
@@ -249,8 +249,6 @@ void ABird::Flock(float DeltaTime)
 	
 	Velocity += (Acceleration * DeltaTime);
 
-	if (Velocity.IsZero())
-		Velocity = -GetActorForwardVector();
 
 	Velocity.Normalize();
 	Velocity *= MaxVelocity;
@@ -262,43 +260,50 @@ void ABird::Flock(float DeltaTime)
 
 void ABird::RunAway(float DeltaTime)
 {
-	FVector Acceleration = FVector::ZeroVector;
-	FVector Velocity = ProjectileMovement->Velocity;
-
 	if (PredatorsInRange.IsEmpty())
 	{
 		PredatorDetected = false;
 		return;
 	}
 
+	FVector Acceleration = FVector::ZeroVector;
+	FVector Velocity = ProjectileMovement->Velocity;
+
+
 	for (auto predator : PredatorsInRange)
 	{
-		//FVector dir = GetActorLocation() - predator->GetActorLocation();
-		//float ProximityFactor = 1 - (dir.Length() / PerceptionComp->GetScaledSphereRadius());
-		//dir.Normalize();
-		//Acceleration += (dir * ProximityFactor);
+		float DistanceSQ = FVector::DistSquared(GetActorLocation(), predator->GetActorLocation());
+
+		if (DistanceSQ > LoseSightRadius * LoseSightRadius)
+		{
+			PredatorsInRange.Remove(predator);
+			if (PredatorsInRange.IsEmpty())
+			{
+				PredatorDetected = false;
+				return;
+			}
+			continue;
+		}
 
 		Acceleration += (GetActorLocation() - predator->GetActorLocation()).GetSafeNormal();
 	}
 
-	Acceleration = Acceleration.GetSafeNormal() * 300;
+	Acceleration = Acceleration.GetSafeNormal() * 10000;
 
 	FVector tempVel = Velocity + (Acceleration * DeltaTime);
 	Acceleration += ObstacleAvoidance(tempVel);
 
 	tempVel = Velocity + (Acceleration * DeltaTime);
-	Acceleration += Reversal(tempVel);
+	Acceleration += (Reversal(tempVel) / 2);
 
 
 	Velocity += (Acceleration * DeltaTime);
 
-	if (Velocity.IsZero())
-		Velocity = -GetActorForwardVector();
 
 	Velocity.Normalize();
 	Velocity *= MaxVelocity;
 
-	//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + Velocity.GetSafeNormal() * 300, FColor::Red, false, 3);
+	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + Velocity.GetSafeNormal() * 300, FColor::Red, false, 3);
 
 	ProjectileMovement->Velocity = Velocity;
 }

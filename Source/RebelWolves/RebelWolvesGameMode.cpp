@@ -6,6 +6,8 @@
 #include "UI/RWUserWidget.h"
 #include "Bird.h"
 #include "GameManager.h"
+#include <GameFramework/GameMode.h>
+#include <Kismet/GameplayStatics.h>
 
 ARebelWolvesGameMode::ARebelWolvesGameMode()
 	: Super()
@@ -18,7 +20,7 @@ ARebelWolvesGameMode::ARebelWolvesGameMode()
 void ARebelWolvesGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
-
+	
 
 	Manager = NewObject<UGameManager>(this, TEXT("GameManager"));
 	if (!Manager->SetConfiguration())

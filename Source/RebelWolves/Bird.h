@@ -46,8 +46,8 @@ public:
 		void OnOverlapBegin(class UPrimitiveComponent* OverlapComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, 
 			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION()
-		void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	//UFUNCTION()
+	//	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UFUNCTION()
 
@@ -106,10 +106,13 @@ public:
 		float BirdPerceptionRadius = 1500;
 
 	UPROPERTY(EditAnywhere, Category = "Flock")
+		float LoseSightRadius = 20000;
+
+	UPROPERTY(EditAnywhere, Category = "Flock")
 		float BirdSeparationRadius = 400;
 
 	UPROPERTY(EditAnywhere, Category = "Flock")
-		float LookAhead = 700;
+		float LookAhead = 500;
 
 	UPROPERTY()
 		TArray<ARebelWolvesProjectile*> PredatorsInRange;
