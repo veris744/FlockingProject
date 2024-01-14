@@ -31,6 +31,7 @@ bool UGameManager::SetConfiguration()
 		GGameIni);
 
 	float h;
+	MaxHeight = 0;
 
 	for (auto val : tempHeights)
 	{
@@ -41,7 +42,12 @@ bool UGameManager::SetConfiguration()
 		}
 
 		BuildingHeights.Add(h);
+		if (h > MaxHeight)
+			MaxHeight = h;
 	}
+
+	if (MaxHeight = 0)
+		MaxHeight = BuildingHeights.Max();
 
 
 	GConfig->GetArray(TEXT("Setup"),
@@ -69,8 +75,6 @@ bool UGameManager::SetConfiguration()
 	Size.Y = y;
 
 
-
-	MaxHeight = BuildingHeights.Max();
 
 	return true;
 }
