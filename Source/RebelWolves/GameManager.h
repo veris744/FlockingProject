@@ -27,11 +27,9 @@ class REBELWOLVES_API UGameManager : public UObject
 	UPROPERTY(Transient)
 		class URWUserWidget* HUDWidget;
 
+
 	FTimerHandle TimerHandleTutorial;
 	float TutorialTime = 7;
-
-	UFUNCTION()
-		void HideTutorial();
 
 	const float kCohesion = 200;
 	const float kSeparation = 350;
@@ -49,12 +47,11 @@ public:
 		Instance = this;
 	}
 
-	void SetHudWidget(URWUserWidget* _HUDWidget) { HUDWidget = _HUDWidget; };
 
-	bool SetConfiguration();
+	/////////////////////////////////////////////////////////////////
+	/////						MANAGING						/////
+	/////////////////////////////////////////////////////////////////
 
-	UFUNCTION()
-		void LoadLevel();
 
 	static UGameManager* GetGameManager();
 
@@ -68,6 +65,7 @@ public:
 	inline float GetAvoidanceFactor() const { return kAvoidance; };
 	inline FVector GetMapCenter() const { return MapCenter; };
 	inline FVector GetCharacterStart() const { return CharacterStart; };
+
 
 	UFUNCTION()
 		void AddBird(ABird* _bird);
@@ -95,11 +93,43 @@ public:
 		inline int GetNumPredator() { return AllPredators.Num(); };
 
 
-	UFUNCTION()
-		void TransformPredator(ARebelWolvesProjectile* predator);
+	/////////////////////////////////////////////////////////////////
+	/////						GAME FLOW						/////
+	/////////////////////////////////////////////////////////////////
+
 
 	UFUNCTION()
 		FVector ReversalBehavior(FVector Location, FVector _Velocity, float LookAhead, bool CheckUp);
+
+	UFUNCTION()
+		void PrepareforMenu();
+
+	UFUNCTION()
+		void StartGame();
+
+	UFUNCTION()
+		bool SetConfiguration();
+
+	UFUNCTION()
+		void LoadLevel();
+
+	UFUNCTION()
+		void HideTutorial();
+
+	/////////////////////////////////////////////////////////////////
+	/////							UI							/////
+	/////////////////////////////////////////////////////////////////
+
+
+	UFUNCTION()
+		void UpdateAmmoUI(int ammo);
+
+	void SetHudWidget(URWUserWidget* _HUDWidget) { HUDWidget = _HUDWidget; };
+
+	/////////////////////////////////////////////////////////////////
+	/////						SPAWNING						/////
+	/////////////////////////////////////////////////////////////////
+
 
 	UPROPERTY()
 		TSubclassOf<class ABird> BirdClass;
@@ -111,12 +141,7 @@ public:
 		TSubclassOf<class AActor> FloorClass;
 
 	UFUNCTION()
-		void UpdateAmmoUI(int ammo);
+		void TransformPredator(ARebelWolvesProjectile* predator);
 
-	UFUNCTION()
-		void PrepareforMenu();
-
-	UFUNCTION()
-		void StartGame();
 
 };

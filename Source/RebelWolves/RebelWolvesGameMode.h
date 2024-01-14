@@ -28,13 +28,14 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 		UGameManager* Manager;
 
-	UPROPERTY(EditDefaultsOnly, Category = Manager)
-		TSubclassOf<class UUserWidget> HUD;
-
 
 	UPROPERTY(Transient)
 		class URWUserWidget* HUDWidget;
 
+
+	/////////////////////////////////////////////////////////////////
+	/////						CLASSES							/////
+	/////////////////////////////////////////////////////////////////
 
 	UPROPERTY(EditDefaultsOnly, Category = Manager)
 		TSubclassOf<class ABird> BirdClass;
@@ -44,6 +45,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Manager)
 		TSubclassOf<class AActor> FloorClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = Manager)
+		TSubclassOf<class UUserWidget> HUD;
 };
 
 

@@ -13,21 +13,16 @@ ARebelWolvesProjectile::ARebelWolvesProjectile()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
 	CollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	CollisionComp->OnComponentHit.AddDynamic(this, &ARebelWolvesProjectile::OnHit);		// set up a notification for when this component hits something blocking
-
-	// Players can't walk on it
+	CollisionComp->OnComponentHit.AddDynamic(this, &ARebelWolvesProjectile::OnHit);		
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
 	CollisionComp->CanCharacterStepUpOn = ECB_No;
 
-	// Set as root component
 	RootComponent = CollisionComp;
 
-	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = RootComponent;
 	ProjectileMovement->bRotationFollowsVelocity = false;
@@ -40,8 +35,6 @@ ARebelWolvesProjectile::ARebelWolvesProjectile()
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetupAttachment(RootComponent);
-
-	
 }
 
 
@@ -79,15 +72,9 @@ void ARebelWolvesProjectile::Tick(float DeltaTime)
 	}
 
 	FVector Acceleration = FVector::ZeroVector;
-	//FVector Velocity = ProjectileMovement->Velocity;
 
 	float distance = SetTarget();
 
-	/*if (distance <= (CollisionComp->GetScaledSphereRadius() + Target->CollisionComp->GetScaledSphereRadius()))
-	{
-		TargetWasCatched();
-		return;
-	}*/
 
 	FVector Velocity = Target->GetActorLocation() - GetActorLocation();
 	Velocity.Normalize();
@@ -101,9 +88,6 @@ void ARebelWolvesProjectile::Tick(float DeltaTime)
 		speed = DefaultSpeed + ProximityFactor * (MaxSpeed - DefaultSpeed);
 		EnergyUsed = speed;
 	}
-
-	//FVector tempVel = Velocity + (Acceleration * DeltaTime);
-	//Acceleration += Reversal(tempVel);
 
 	FVector tempVel = Velocity + (Acceleration * DeltaTime);
 	Acceleration += ObstacleAvoidance(tempVel);
@@ -204,7 +188,6 @@ FVector ARebelWolvesProjectile::ObstacleAvoidance(FVector _Velocity)
 
 	if (Hit.bBlockingHit)
 	{
-		//weight += Hit.ImpactNormal;
 		if (Hit.ImpactNormal == Hit.GetActor()->GetActorUpVector())
 		{
 			FVector temp1 = Hit.GetActor()->GetActorRightVector();

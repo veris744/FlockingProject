@@ -66,6 +66,5 @@ public:
 	UFUNCTION()
 		void OnClickedRestart();
 
-	int CurrBirds;
 };
 

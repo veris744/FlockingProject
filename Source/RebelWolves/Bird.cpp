@@ -86,7 +86,6 @@ void ABird::OnOverlapBegin(UPrimitiveComponent* OverlapComponent, AActor* OtherA
 {
 	
 	if (OtherActor->GetClass()->IsChildOf(ARebelWolvesProjectile::StaticClass()) )
-		//&& FVector::DotProduct(GetActorForwardVector(), (OtherActor->GetActorLocation() - GetActorLocation()).GetSafeNormal()) <= FOV)
 	{
 		PredatorDetected = true;
 		ARebelWolvesProjectile * predator = Cast<ARebelWolvesProjectile>(OtherActor);
@@ -98,23 +97,6 @@ void ABird::OnOverlapBegin(UPrimitiveComponent* OverlapComponent, AActor* OtherA
 	
 }
 
-/*
-void ABird::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if (OtherActor && OtherActor->GetClass()->IsChildOf(ARebelWolvesProjectile::StaticClass()))
-	{
-		ARebelWolvesProjectile* predator = Cast<ARebelWolvesProjectile>(OtherActor);
-		if (PredatorsInRange.Contains(predator))
-		{
-			PredatorsInRange.Remove(predator);
-		}
-		if (PredatorsInRange.IsEmpty())
-		{
-			PredatorDetected = false;
-		}
-	}
-}
-*/
 
 void ABird::OnStop(const FHitResult& Hit)
 {
@@ -354,7 +336,6 @@ FVector ABird::ObstacleAvoidance(FVector _Velocity)
 				weight -= temp1.GetSafeNormal();
 			}
 		}
-		//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + weight * 300, FColor::Red, false, 3);
 	}
 	
 	return (weight * GameManager->GetAvoidanceFactor());

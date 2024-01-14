@@ -16,6 +16,12 @@ class ARebelWolvesProjectile : public AActor
 {
 	GENERATED_BODY()
 
+
+
+	/////////////////////////////////////////////////////////////////
+	/////						COMPONENTS						/////
+	/////////////////////////////////////////////////////////////////
+
 	/** Sphere collision component */
 	UPROPERTY(VisibleDefaultsOnly, Category=Projectile)
 	USphereComponent* CollisionComp;
@@ -26,8 +32,6 @@ class ARebelWolvesProjectile : public AActor
 	/** Projectile movement component */
 	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	UProjectileMovementComponent* ProjectileMovement;
-
-
 
 	UPROPERTY()
 		UGameManager* GameManager;
@@ -54,9 +58,13 @@ public:
 	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
 
+
+	/////////////////////////////////////////////////////////////////
+	/////						PROPETIES						/////
+	/////////////////////////////////////////////////////////////////
+
 	UPROPERTY(VisibleAnywhere, Category = Predator)
 		float DefaultSpeed = 700;
-
 
 	UPROPERTY(VisibleAnywhere, Category = Predator)
 		float MaxSpeed = 1200;
@@ -76,6 +84,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Flock")
 		float LookAhead = 200;
 
+	UPROPERTY()
+		UMaterialInstanceDynamic* Color;
+
+
+	/////////////////////////////////////////////////////////////////
+	/////						BEHAVIOR						/////
+	/////////////////////////////////////////////////////////////////
 
 	UPROPERTY(VisibleAnywhere, Category = Predator)
 		ABird* Target;
@@ -100,8 +115,6 @@ public:
 		FVector ObstacleAvoidance(FVector _Velocity);
 
 
-	UPROPERTY()
-		UMaterialInstanceDynamic* Color;
 	
 };
 

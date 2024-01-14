@@ -46,9 +46,6 @@ public:
 		void OnOverlapBegin(class UPrimitiveComponent* OverlapComponent, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, 
 			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	//UFUNCTION()
-	//	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
 	UFUNCTION()
 
 		void OnStop(const FHitResult& Hit);
@@ -77,16 +74,17 @@ public:
 	UPROPERTY()
 		UGameManager* GameManager;
 
+	UPROPERTY()
+		TArray<ARebelWolvesProjectile*> PredatorsInRange;
 
 	/////////////////////////////////////////////////////////////////
-	/////						MOVEMENT						/////
+	/////						PROPERTIES						/////
 	/////////////////////////////////////////////////////////////////
 
 
 
 	UPROPERTY(VisibleAnywhere, Category = "Flock")
 		float MaxVelocity = 500;
-
 	
 	UPROPERTY(VisibleAnywhere, Category = "Flock")
 		float MaxAcceleration = 1000;
@@ -94,13 +92,8 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Flock")
 		bool PredatorDetected = false;
 
-	UPROPERTY(VisibleAnywhere, Category = "Flock")
-		float FOV = -0.5f;
-
-
-	/////////////////////////////////////////////////////////////////
-	/////						STEERING						/////
-	/////////////////////////////////////////////////////////////////
+	//UPROPERTY(VisibleAnywhere, Category = "Flock")
+	//	float FOV = -0.5f;
 
 	UPROPERTY(EditAnywhere, Category = "Flock")
 		float BirdPerceptionRadius = 1500;
@@ -114,8 +107,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Flock")
 		float LookAhead = 500;
 
-	UPROPERTY()
-		TArray<ARebelWolvesProjectile*> PredatorsInRange;
+
+
+	/////////////////////////////////////////////////////////////////
+	/////						STEERING						/////
+	/////////////////////////////////////////////////////////////////
+
 
 	UFUNCTION()
 		void Flock(float DeltaTime);
