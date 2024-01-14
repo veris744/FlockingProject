@@ -46,7 +46,7 @@ bool UGameManager::SetConfiguration()
 			MaxHeight = h;
 	}
 
-	if (MaxHeight = 0)
+	if (MaxHeight == 0)
 		MaxHeight = BuildingHeights.Max();
 
 
