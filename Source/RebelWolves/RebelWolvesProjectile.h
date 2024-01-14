@@ -73,11 +73,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Flock")
 		float LookAhead = 300;
 
-	UPROPERTY(VisibleAnywhere, Category = Predator)
-		FVector Velocity;
-
-	UPROPERTY(VisibleAnywhere, Category = Predator)
-		FVector Acceleration;
 
 	UPROPERTY(VisibleAnywhere, Category = Predator)
 		ABird* Target;

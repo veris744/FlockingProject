@@ -48,7 +48,7 @@ bool UGameManager::SetConfiguration()
 
 	if (tempSize.Num() != 2)
 	{
-		UE_LOG(LogTemp, Fatal, TEXT("Config File: Wrong Size: %d"), tempSize.Num());
+		UE_LOG(LogTemp, Fatal, TEXT("Config File: Size Vector Num: %d"), tempSize.Num());
 		return false;
 	}
 

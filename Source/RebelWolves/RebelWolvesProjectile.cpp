@@ -52,6 +52,9 @@ void ARebelWolvesProjectile::Tick(float DeltaTime)
 		return;
 	}
 
+	FVector Acceleration = FVector::ZeroVector;
+	//FVector Velocity = ProjectileMovement->Velocity;
+
 	float distance = SetTarget();
 
 	/*if (distance <= (CollisionComp->GetScaledSphereRadius() + Target->CollisionComp->GetScaledSphereRadius()))
@@ -60,7 +63,8 @@ void ARebelWolvesProjectile::Tick(float DeltaTime)
 		return;
 	}*/
 
-	Velocity = Target->GetActorLocation() - GetActorLocation();
+	FVector Velocity = Target->GetActorLocation() - GetActorLocation();
+	Velocity.Normalize();
 
 	float speed = DefaultSpeed;
 	float EnergyUsed = MinEnergyExp;
@@ -90,7 +94,6 @@ void ARebelWolvesProjectile::Tick(float DeltaTime)
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT("%f"), speed));
 
 	ProjectileMovement->Velocity = Velocity;
-	//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + ProjectileMovement->Velocity.GetSafeNormal() * 300, FColor::Red, false, 3);
 }
 
 
@@ -171,7 +174,7 @@ void ARebelWolvesProjectile::TargetWasCatched()
 
 FVector ARebelWolvesProjectile::Reversal(FVector _Velocity)
 {
-	return (1000 * GameManager->ReversalBehavior(GetActorLocation(), _Velocity, LookAhead));
+	return (GameManager->GetAvoidanceFactor() * GameManager->ReversalBehavior(GetActorLocation(), _Velocity, LookAhead));
 }
 
 
@@ -188,7 +191,7 @@ FVector ARebelWolvesProjectile::ObstacleAvoidance(FVector _Velocity)
 
 	if (Hit.bBlockingHit)
 	{
-		weight += Hit.ImpactNormal;
+		//weight += Hit.ImpactNormal;
 		if (Hit.ImpactNormal == Hit.GetActor()->GetActorUpVector())
 		{
 			FVector temp1 = Hit.GetActor()->GetActorRightVector();
@@ -220,7 +223,9 @@ FVector ARebelWolvesProjectile::ObstacleAvoidance(FVector _Velocity)
 				weight -= temp1.GetSafeNormal();
 			}
 		}
+		//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + weight * 300, FColor::Red, false, 3);
+
 	}
 
-	return (weight * 10000);
+	return (weight * GameManager->GetAvoidanceFactor());
 }

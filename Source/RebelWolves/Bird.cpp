@@ -66,6 +66,10 @@ void ABird::Tick(float DeltaTime)
 
 	if (GameManager == nullptr)	return;
 	
+
+	FVector rot = -FVector::CrossProduct(GetActorUpVector(), ProjectileMovement->Velocity);
+	SetActorRotation(FRotator(0, rot.Rotation().Yaw, 0));
+
 	if (PredatorDetected)
 	{
 		RunAway(DeltaTime);
@@ -217,13 +221,11 @@ FVector ABird::Alignment(const TArray<ABird*>& birds)
 
 FVector ABird::Reversal(FVector _Velocity)
 {
-	return (5000 * GameManager->ReversalBehavior(GetActorLocation(), _Velocity, LookAhead));
+	return (GameManager->GetAvoidanceFactor() * GameManager->ReversalBehavior(GetActorLocation(), _Velocity, LookAhead));
 }
 
 void ABird::Flock(float DeltaTime)
 {
-	SetActorRotation(FRotator(0, ProjectileMovement->Velocity.Rotation().Yaw,
-		0));
 
 	FVector Acceleration = FVector::ZeroVector;
 	FVector Velocity = ProjectileMovement->Velocity;
@@ -245,13 +247,6 @@ void ABird::Flock(float DeltaTime)
 	Acceleration += Reversal(tempVel);
 
 	
-
-	/*if (Acceleration.SquaredLength() > MaxAcceleration * MaxAcceleration)
-	{
-		Acceleration.Normalize();
-		Acceleration *= MaxAcceleration;
-	}*/
-
 	Velocity += (Acceleration * DeltaTime);
 
 	if (Velocity.IsZero())
@@ -294,12 +289,6 @@ void ABird::RunAway(float DeltaTime)
 	tempVel = Velocity + (Acceleration * DeltaTime);
 	Acceleration += Reversal(tempVel);
 
-
-	/*if (Acceleration.SquaredLength() > MaxAcceleration * MaxAcceleration)
-	{
-		Acceleration.Normalize();
-		Acceleration *= MaxAcceleration;
-	}*/
 
 	Velocity += (Acceleration * DeltaTime);
 
@@ -363,5 +352,5 @@ FVector ABird::ObstacleAvoidance(FVector _Velocity)
 		//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + weight * 300, FColor::Red, false, 3);
 	}
 	
-	return (weight * 10000);
+	return (weight * GameManager->GetAvoidanceFactor());
 }
