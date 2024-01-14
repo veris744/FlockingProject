@@ -276,7 +276,12 @@ void ABird::RunAway(float DeltaTime)
 	Acceleration += ObstacleAvoidance(tempVel);
 
 	tempVel = Velocity + (Acceleration * DeltaTime);
-	Acceleration += (Reversal(tempVel));
+	if (Reversal(tempVel) != FVector::ZeroVector)
+	{
+		FVector dir = FVector::CrossProduct(GetActorUpVector(), Reversal(tempVel)) + Reversal(tempVel);
+			
+		Acceleration += dir.GetSafeNormal() * GameManager->GetAvoidanceFactor();
+	}
 
 
 	Velocity += (Acceleration * DeltaTime);
