@@ -187,7 +187,7 @@ void ARebelWolvesProjectile::TargetWasCatched()
 
 FVector ARebelWolvesProjectile::Reversal(FVector _Velocity)
 {
-	return (GameManager->GetAvoidanceFactor() * GameManager->ReversalBehavior(GetActorLocation(), _Velocity, LookAhead, false));
+	return (GameManager->GetAvoidanceFactor() * GameManager->ReversalBehavior(GetActorLocation(), _Velocity, LookAhead));
 }
 
 

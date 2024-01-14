@@ -55,7 +55,7 @@ public:
 
 
 	UPROPERTY(VisibleAnywhere, Category = Predator)
-		float DefaultSpeed = 700;
+		float DefaultSpeed = 650;
 
 
 	UPROPERTY(VisibleAnywhere, Category = Predator)
@@ -65,7 +65,7 @@ public:
 		float MinEnergyExp = 250;
 
 	UPROPERTY(VisibleAnywhere, Category = Predator)
-		float EnergyRecovered = 7;
+		float EnergyRecovered = 5;
 
 	UPROPERTY(VisibleAnywhere, Category = Predator)
 		float MaxEnergy = 50;

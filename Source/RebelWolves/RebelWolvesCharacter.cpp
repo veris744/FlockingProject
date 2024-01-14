@@ -60,7 +60,10 @@ void ARebelWolvesCharacter::BeginPlay()
 	{
 		Manager->UpdateAmmoUI(Ammo);
 
+		Manager->StartGame();
+
 		SetActorLocation(Manager->GetCharacterStart() + GetActorUpVector() * GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+
 	}
 
 }

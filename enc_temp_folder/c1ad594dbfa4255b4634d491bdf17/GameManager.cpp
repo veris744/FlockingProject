@@ -227,7 +227,7 @@ void UGameManager::TransformPredator(ARebelWolvesProjectile* predator)
 	}
 }
 
-FVector UGameManager::ReversalBehavior(FVector Location, FVector _Velocity, float LookAhead, bool checkUp)
+FVector UGameManager::ReversalBehavior(FVector Location, FVector _Velocity, float LookAhead)
 {
 	FVector LookAheadPos = Location + _Velocity.GetSafeNormal() * LookAhead;
 
@@ -253,11 +253,11 @@ FVector UGameManager::ReversalBehavior(FVector Location, FVector _Velocity, floa
 			weight.Y = -1;
 	}
 
-	if ( LookAheadPos.Z < 800 || LookAheadPos.Z > zBoundary)
+	if (LookAheadPos.Z < 800 || LookAheadPos.Z > zBoundary)
 	{
 		if (LookAheadPos.Z < 800)
 			weight.Z = 1;
-		else if (checkUp)
+		else
 			weight.Z = -1;
 	}
 

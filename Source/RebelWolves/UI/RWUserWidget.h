@@ -34,6 +34,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 		UImage* CrosshairImage;
 
+	UPROPERTY(meta = (BindWidget))
+		UImage* TutorialImage;
+
 
 	UPROPERTY(meta = (BindWidget))
 		UTextBlock* BirdsCount;

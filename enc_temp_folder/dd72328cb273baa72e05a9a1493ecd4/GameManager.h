@@ -99,7 +99,7 @@ public:
 		void TransformPredator(ARebelWolvesProjectile* predator);
 
 	UFUNCTION()
-		FVector ReversalBehavior(FVector Location, FVector _Velocity, float LookAhead, bool CheckUp);
+		FVector ReversalBehavior(FVector Location, FVector _Velocity, float LookAhead);
 
 	UPROPERTY()
 		TSubclassOf<class ABird> BirdClass;

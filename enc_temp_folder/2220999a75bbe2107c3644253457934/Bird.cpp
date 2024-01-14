@@ -221,7 +221,7 @@ FVector ABird::Alignment(const TArray<ABird*>& birds)
 
 FVector ABird::Reversal(FVector _Velocity)
 {
-	return (GameManager->GetAvoidanceFactor() * GameManager->ReversalBehavior(GetActorLocation(), _Velocity, LookAhead, !PredatorDetected));
+	return (GameManager->GetAvoidanceFactor() * GameManager->ReversalBehavior(GetActorLocation(), _Velocity, LookAhead));
 }
 
 void ABird::Flock(float DeltaTime)
