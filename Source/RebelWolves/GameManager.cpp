@@ -153,14 +153,7 @@ void UGameManager::RemoveBird(ABird* _bird)
 		{
 			HUDWidget->ResultText->SetText(FText::FromString("YOU WON"));
 			HUDWidget->RestartButton->SetVisibility(ESlateVisibility::Visible);
-			APlayerController* MyController = GetWorld()->GetFirstPlayerController();
-			if (MyController)
-			{
-				MyController->SetInputMode(FInputModeGameOnly());
-				MyController->bShowMouseCursor = true;
-				MyController->bEnableClickEvents = true;
-				MyController->bEnableMouseOverEvents = true;
-			}
+			PrepareforMenu();
 			UGameplayStatics::SetGamePaused(GetWorld(), true);
 		}
 	}
@@ -221,14 +214,7 @@ void UGameManager::TransformPredator(ARebelWolvesProjectile* predator)
 	{
 		HUDWidget->ResultText->SetText(FText::FromString("YOU LOST"));
 		HUDWidget->RestartButton->SetVisibility(ESlateVisibility::Visible);
-		APlayerController* MyController = GetWorld()->GetFirstPlayerController();
-		if (MyController)
-		{
-			MyController->SetInputMode(FInputModeGameOnly());
-			MyController->bShowMouseCursor = true;
-			MyController->bEnableClickEvents = true;
-			MyController->bEnableMouseOverEvents = true;
-		}
+		PrepareforMenu();
 		UGameplayStatics::SetGamePaused(GetWorld(), true);
 	}
 }
@@ -273,4 +259,16 @@ FVector UGameManager::ReversalBehavior(FVector Location, FVector _Velocity, floa
 void UGameManager::UpdateAmmoUI(int ammo)
 {
 	HUDWidget->UpdateAmmoCount(ammo);
+}
+
+void UGameManager::PrepareforMenu()
+{
+	APlayerController* MyController = GetWorld()->GetFirstPlayerController();
+	if (MyController)
+	{
+		MyController->SetInputMode(FInputModeGameOnly());
+		MyController->bShowMouseCursor = true;
+		MyController->bEnableClickEvents = true;
+		MyController->bEnableMouseOverEvents = true;
+	}
 }

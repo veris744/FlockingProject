@@ -51,7 +51,5 @@ void URWUserWidget::UpdateAmmoCount(int num)
 void URWUserWidget::OnClickedRestart()
 {
 	FString name = UGameplayStatics::GetCurrentLevelName(GetWorld());
-	//UGameplayStatics::LoadStreamLevel(GetWorld(), FName(name), true, false, FLatentActionInfo());
-
 	UGameplayStatics::OpenLevel(GetWorld(), FName(name));
 }

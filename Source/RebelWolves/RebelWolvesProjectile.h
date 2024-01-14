@@ -71,7 +71,7 @@ public:
 		float AccelerationRadius = 1000;
 
 	UPROPERTY(EditAnywhere, Category = "Flock")
-		float LookAhead = 300;
+		float LookAhead = 200;
 
 
 	UPROPERTY(VisibleAnywhere, Category = Predator)

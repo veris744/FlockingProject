@@ -108,4 +108,7 @@ public:
 
 	UFUNCTION()
 		void UpdateAmmoUI(int ammo);
+
+	UFUNCTION()
+		void PrepareforMenu();
 };
